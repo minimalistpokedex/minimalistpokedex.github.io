@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pokemon Info</title>
+<!-- Include Bootstrap CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #fff; /* White background color */
+  }
+  .slider-container {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    z-index: 100;
+  }
+  .slider-container input {
+    width: 300px;
+    margin-right: 10px;
+  }
+  .slider-container button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  .slider-value {
+    font-size: 20px;
+    margin-top: 5px;
+  }
+  .container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .pokemon-card {
+    margin: 20px 0;
+    position: relative; /* To position the color pill */
+    opacity: 0; /* Initial opacity set to 0 */
+    animation: fadeIn 1s forwards; /* Apply fade-in animation */
+  }
+  @keyframes fadeIn {
+    to {
+      opacity: 1; /* Fade in to full opacity */
+    }
+  }
+  /* Initial state of text elements */
+  .fade-in-text {
+    opacity: 0; /* Set opacity to 0 for initial hidden state */
+    animation: fadeInText 1s forwards; /* Apply fade-in animation */
+  }
+  @keyframes fadeInText {
+    to {
+      opacity: 1; /* Fade in to full opacity */
+    }
+  }
+  /* Style for mega image */
+  .mega-image {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 80px;
+    height: 80px;
+  }
+  /* Scrollbar style */
+  .scroll-container {
+    max-height: 70vh; /* Limit container height to viewport height */
+    overflow-y: auto; /* Add vertical scrollbar when content overflows */
+    padding-right: 10px; /* Add space for scrollbar */
+    /* Custom scrollbar styles */
+    scrollbar-width: thin; /* For Firefox */
+    scrollbar-color: #888888 #f0f0f0; /* thumb color, track color */
+  }
+
+  /* For WebKit (Chrome, Safari) */
+  .scroll-container::-webkit-scrollbar {
+    width: 6px; /* Width of the scrollbar */
+  }
+  .scroll-container::-webkit-scrollbar-thumb {
+    background-color: #888888; /* Color of the thumb */
+    border-radius: 3px; /* Rounded edges */
+  }
+  .scroll-container::-webkit-scrollbar-track {
+    background-color: #f0f0f0; /* Color of the track */
+    border-radius: 3px; /* Rounded edges */
+  }
+
+  /* Different font for ID */
+  .pokemon-id {
+    font-family: 'Arial', sans-serif;
+    color: #888888;
+  }
+
+  /* Style for evolution text */
+  .evolution-text {
+    font-size: 18px; /* Adjust font size as desired */
+  }
+
+  /* Footer style */
+  .footer {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    font-style: italic;
+  }
+
+  /* Hide mega image text and images */
+  .hide-mega {
+    display: none;
+  }
+
+  /* Hide mega image field text */
+  .hide-mega-field-text {
+    display: none;
+  }
+  /* Info icon style */
+  .info-icon {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 24px;
+    cursor: pointer;
+  }
+
+  /* Info popup style */
+  .info-popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    background-color: white;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+  }
+
+  .info-popup-content {
+    text-align: center;
+  }
+
+  .info-popup-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+  }
+    /* Info icon style */
+  .info-icon {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 101; /* Higher z-index to ensure visibility */
+  }
+
+   /* Styles for the pop-up box */
+   .info-popup {
+      background-color: #fff; /* Change background color */
+      color: #333; /* Change text color */
+      border: 1px solid #333; /* Change border color */
+    }
+
+  /* Pop-up window style */
+  .info-popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    z-index: 102; /* Higher z-index to ensure visibility */
+  }
+
+  .info-popup p {
+    margin: 10px 0;
+    font-size: 14px;
+    text-align: center;
+  }
+
+  /* Blurred overlay */
+  .blur-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    z-index: 100; /* Below pop-up but above main content */
+    display: none; /* Initially hidden */
+  }
+
+  /* Dark mode toggle icon */
+  #darkModeToggle {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    /* Dark mode styles */
+    body.dark-mode {
+      background-color: #333;
+      color: #fff;
+    }
+</style>
+</head>
+<body>
+ <!-- Dark mode toggle icon -->
+ <div id="darkModeToggle">🌙</div>
+
+    <div class="slider-container">
+      <input type="range" id="slider" min="1" max="689" value="1">
+      <p class="slider-value" id="sliderValue">1</p>
+      <button id="enterButton">Enter</button>
+    </div>
+  
+    <!-- Info icon -->
+    <span class="info-icon" id="infoIcon">&#9432;</span>
+  
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6 offset-md-3">
+          <div class="pokemon-card" id="pokemon-info">
+            <!-- Data will be inserted here -->
+            <div class="scroll-container" id="scroll-container">
+              <!-- Content will be inserted here -->
+            </div>
+          </div>
+          <div class="mega-image-container" id="mega-image-container">
+            <!-- Mega image will be inserted here -->
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <div class="footer">
+      Minimalist Pokedex | tee <span id="currentYear"></span>
+    </div>
+  
+    <!-- Blurred overlay -->
+    <div class="blur-overlay" id="blurOverlay"></div>
+  
+    <!-- Pop-up window -->
+<div class="info-popup" id="infoPopup">
+    <p style="text-align: center;">Minimalist Pokedex interface. Made solely with ChatGPT and zero human interference in the code beyond prompting as an experiment to test GPT3.5's limitations. Only works for Pokemon 1 to 689.</p>
+    <p style="text-align: center;">Conversation Link - <a href="https://chat.openai.com/share/25025551-da9c-4206-8a4e-4b65e4b81f6c" target="_blank">https://chat.openai.com/share/25025551-da9c-4206-8a4e-4b65e4b81f6c</a></p>
+    <p style="text-align: center;">Custom Instructions used were the following:</p>
+    <div style="text-align: center;">
+      <strong style="display: block;">How would you like ChatGPT to respond?</strong>
+      <div style="display: inline-block; text-align: left; background-color: #f5f5f5; padding: 10px; border-radius: 10px;">
+        <code>
+          When you are coding, NEVER use comments to replace typing out the full code from before. NEVER use pseudocode either.
+        </code>
+      </div>
+    </div>
+    <button id="closePopupButton">Close</button>
+  </div>
+  
+  
+    
+  <script>
+     const darkModeToggle = document.getElementById("darkModeToggle");
+    const body = document.body;
+
+    // Check if dark mode is already enabled
+    if (localStorage.getItem("darkMode") === "enabled") {
+      body.classList.add("dark-mode");
+      darkModeToggle.textContent = "☀️"; // Change icon to sun
+    }
+
+    // Toggle dark mode
+    darkModeToggle.addEventListener("click", () => {
+      if (body.classList.contains("dark-mode")) {
+        body.classList.remove("dark-mode");
+        darkModeToggle.textContent = "🌙"; // Change icon to moon
+        localStorage.setItem("darkMode", "disabled");
+      } else {
+        body.classList.add("dark-mode");
+        darkModeToggle.textContent = "☀️"; // Change icon to sun
+        localStorage.setItem("darkMode", "enabled");
+      }
+    });
+
+     const maxPokemonId = 689;
+    let currentPokemonId = 1;
+    let isAnimating = false; // Flag to prevent animations overlap
+    const pokemonInfo = document.getElementById('pokemon-info');
+    const scrollContainer = document.getElementById('scroll-container');
+    const megaImageContainer = document.getElementById('mega-image-container');
+    const slider = document.getElementById('slider');
+    const sliderValueElement = document.getElementById('sliderValue');
+    const enterButton = document.getElementById('enterButton');
+    const currentYearElement = document.getElementById('currentYear');
+    const loadingElement = document.createElement('p');
+    loadingElement.textContent = 'Loading...';
+    const blurOverlay = document.getElementById('blurOverlay'); // Blurred overlay
+    const infoPopup = document.getElementById('infoPopup'); // Pop-up window
+
+    // Function to remove existing text elements
+    const removeExistingText = () => {
+      const existingElements = document.querySelectorAll('.fade-in-text');
+      existingElements.forEach(element => {
+        element.remove();
+      });
+    };
+
+    // Function to replace game codes with names
+    const replaceGameCodes = (gamesString) => {
+      const replacements = {
+        '<:sword:678301138734284810>': 'Pokémon Sword',
+        '<:shield:678301138709381154>': 'Pokémon Shield',
+        '<:pika:678301138742673486>': "Pokémon Let's Go, Pikachu!",
+        '<:eevee:678301138306465819>': "Pokémon Let's Go, Eevee!",
+        '<:ultrasun:678301138478432267>': 'Pokemon Ultra Sun',
+        '<:ultramoon:678301138730352710>': 'Pokemon Ultra Moon',
+        '<:sun:678301138742673467>': 'Pokemon Sun',
+        '<:moon:678301138340282372>': 'Pokemon Moon',
+        '<:x_:678301138356797463>': 'Pokemon X',
+        '<:y_:678301138545541151>': 'Pokemon Y',
+        '<:alpha:678301138348539906>': 'Pokemon Alpha Sapphire',
+        '<:omega:678301138763644928>': 'Pokemon Omega Ruby',
+      };
+
+      for (const code in replacements) {
+        gamesString = gamesString.replace(code, replacements[code]);
+      }
+      return gamesString;
+    };
+
+    // Function to fetch and display Pokemon data
+    const fetchPokemonData = async (pokemonId) => {
+      if (isAnimating) {
+        return; // Prevent overlapping animations
+      }
+
+      try {
+        removeExistingText();
+        megaImageContainer.innerHTML = ''; // Clear mega image container
+        scrollContainer.innerHTML = ''; // Clear scroll container
+        pokemonInfo.appendChild(loadingElement);
+
+        const response = await fetch(`https://sapphire-stem.glitch.me/${pokemonId}.json`);
+        const data = await response.json();
+
+        pokemonInfo.removeChild(loadingElement);
+
+        // Display name and ID
+        const nameIdElement = document.createElement('h2');
+        nameIdElement.classList.add('fade-in-text');
+        nameIdElement.innerHTML = `<span class="pokemon-name">${data.name}</span> <span class="pokemon-id">${data.id}</span>`;
+        scrollContainer.appendChild(nameIdElement);
+
+        // Display evolution information if evolvename field is present
+        if (data.evolvename) {
+          const evolutionElement = document.createElement('p');
+          evolutionElement.classList.add('fade-in-text', 'evolution-text');
+          if (data.evolvelevel) {
+            evolutionElement.textContent = `Evolves to ${data.evolvename} at level ${data.evolvelevel}`;
+          } else if (data.evolvestone) {
+            evolutionElement.textContent = `Evolves to ${data.evolvename} with a ${data.evolvestone}`;
+          }
+          scrollContainer.appendChild(evolutionElement);
+        }
+
+        // Display entry in smaller text underneath
+        const entryElement = document.createElement('p');
+        entryElement.classList.add('fade-in-text', 'small-text');
+        entryElement.textContent = data.entry;
+        scrollContainer.appendChild(entryElement);
+
+        // Display other properties
+        for (const property in data) {
+          if (data.hasOwnProperty(property) && property !== 'name' && property !== 'entry' && property !== 'id' && property !== 'evolvename' && property !== 'evolvelevel' && property !== 'evolvestone' && property !== 'megaimage') {
+            const element = document.createElement('p');
+            element.classList.add('fade-in-text');
+            if (property === 'games') {
+              const gamesList = replaceGameCodes(data[property]).split(', ').join(', ');
+              element.innerHTML = `<strong>${property}:</strong> ${gamesList}`;
+            } else {
+              element.innerHTML = `<strong>${property}:</strong> ${data[property]}`;
+            }
+            scrollContainer.appendChild(element);
+          }
+        }
+
+        // Display mega image if present
+        if (data.megaimage) {
+          const megaImage = document.createElement('img');
+          megaImage.classList.add('mega-image', 'hide-mega');
+          megaImage.src = data.megaimage;
+          megaImageContainer.appendChild(megaImage);
+        }
+      } catch (error) {
+        console.error('Error fetching JSON data:', error);
+      }
+    };
+
+    // Initial fetch
+    fetchPokemonData(currentPokemonId);
+
+    // Arrow key navigation
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowLeft') {
+        currentPokemonId = Math.max(currentPokemonId - 1, 1);
+        fetchPokemonData(currentPokemonId);
+      } else if (event.key === 'ArrowRight') {
+        currentPokemonId = Math.min(currentPokemonId + 1, maxPokemonId);
+        fetchPokemonData(currentPokemonId);
+      }
+    });
+
+    // Slider and Enter button functionality
+    enterButton.addEventListener('click', () => {
+      const sliderValue = parseInt(slider.value);
+      if (sliderValue >= 1 && sliderValue <= maxPokemonId) {
+        currentPokemonId = sliderValue;
+        fetchPokemonData(currentPokemonId);
+      }
+    });
+
+    slider.addEventListener('input', () => {
+      sliderValueElement.textContent = slider.value; // Display slider value
+      slider.focus(); // Keep slider in focus while using arrow keys
+    });
+
+    // Info icon functionality
+    const infoIcon = document.getElementById('infoIcon');
+    const closePopupButton = document.getElementById('closePopupButton');
+
+    infoIcon.addEventListener('click', () => {
+      infoPopup.style.display = 'block';
+      blurOverlay.style.display = 'block';
+    });
+
+    closePopupButton.addEventListener('click', () => {
+      infoPopup.style.display = 'none';
+      blurOverlay.style.display = 'none';
+    });
+
+    // Set current year in the footer
+    const currentYear = new Date().getFullYear();
+    currentYearElement.textContent = currentYear;
+  </script>
+</body>
+</html>
